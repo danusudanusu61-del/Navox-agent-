@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NAVOX - AI Agent Website</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        html, body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background-color: #0f172a;
+            border-bottom: 1px solid #1e293b;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #e2e8f0;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .message.bot .avatar {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #38bdf8;
+        }
+
+        .message.user .avatar {
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+        }
+
+        .message-content {
+            background-color: #1e293b;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            max-width: 85%;
+        }
+
+        .message.user .message-content {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+        }
+
+        .chat-input-area {
+            flex-shrink: 0;
+            padding: 12px 16px 16px 16px;
+            background-color: #0b0f19;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid #1e293b;
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            width: 100%;
+            background-color: #131b2e;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-wrapper textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            resize: none;
+            max-height: 120px;
+            outline: none;
+            line-height: 1.4;
+        }
+
+        .send-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-header">NAVOX AI Website Agent</div>
+
+    <div class="chat-messages" id="chatMessages">
+        <div class="message bot">
+            <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+            <div class="message-content">Website ready! Type "open freefire", "open telegram", or "open instagram" to test.</div>
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <div class="input-wrapper">
+            <textarea id="userInput" placeholder="Type command here..." rows="1"></textarea>
+            <button class="send-btn" id="sendBtn"><i class="fa-solid fa-arrow-up"></i></button>
+        </div>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.classList.add('avatar');
+            avatarDiv.innerHTML = sender === 'bot' ? '<i class="fa-solid fa-robot"></i>' : 'U';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            contentDiv.textContent = text;
+
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function openAppWithFallback(packageName, playStoreUrl, appName) {
+            addMessage(`Launching ${appName}...`, 'bot');
+            setTimeout(() => {
+                window.location.href = `intent://#Intent;package=${packageName};end;`;
+                setTimeout(() => {
+                    window.open(playStoreUrl, "_blank");
+                }, 1200);
+            }, 400);
+        }
+
+        function processCommand(text) {
+            let lower = text.toLowerCase();
+
+            if (lower.includes('free fire') || lower.includes('freefire')) {
+                openAppWithFallback("com.dts.freefireth", "https://play.google.com/store/apps/details?id=com.dts.freefireth", "Free Fire");
+            } else if (lower.includes('bgmi') || lower.includes('pubg')) {
+                openAppWithFallback("com.pubg.imobile", "https://play.google.com/store/apps/details?id=com.pubg.imobile", "BGMI");
+            } else if (lower.includes('telegram')) {
+                openAppWithFallback("org.telegram.messenger", "https://play.google.com/store/apps/details?id=org.telegram.messenger", "Telegram");
+            } else if (lower.includes('instagram')) {
+                openAppWithFallback("com.instagram.android", "https://play.google.com/store/apps/details?id=com.instagram.android", "Instagram");
+            } else if (lower.includes('maps') || lower.includes('map')) {
+                openAppWithFallback("com.google.android.apps.maps", "https://play.google.com/store/apps/details?id=com.google.android.apps.maps", "Google Maps");
+            } else if (lower.includes('gemini')) {
+                openAppWithFallback("com.google.android.apps.bard", "https://play.google.com/store/apps/details?id=com.google.android.apps.bard", "Google Gemini");
+            } else if (lower.includes('whatsapp')) {
+                openAppWithFallback("com.whatsapp", "https://play.google.com/store/apps/details?id=com.whatsapp", "WhatsApp");
+            } else if (lower.includes('youtube')) {
+                openAppWithFallback("com.google.android.youtube", "https://play.google.com/store/apps/details?id=com.google.android.youtube", "YouTube");
+            } else {
+                addMessage(`Executing general search for: "${text}"`, 'bot');
+                setTimeout(() => {
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`, "_blank");
+                }, 500);
+            }
+        }
+
+        function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            
+            addMessage(text, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+
+            processCommand(text);
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    </script>
+</body>
+</html>
